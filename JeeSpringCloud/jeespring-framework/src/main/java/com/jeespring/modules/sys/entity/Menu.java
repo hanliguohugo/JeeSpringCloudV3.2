@@ -3,6 +3,7 @@
  */
 package com.jeespring.modules.sys.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -32,22 +33,40 @@ public class Menu extends AbstractBaseEntity<Menu> {
 	private Integer sort; 	// 排序
 	private String isShow; 	// 是否在菜单中显示（1：显示；0：不显示）
 	private String permission; // 权限标识
-	
 	private String userId;
-	
+
 	public Menu(){
 		super();
 		this.sort = 30;
 		this.isShow = "1";
 	}
-	
+
 	public Menu(String id){
 		super(id);
 	}
-	
+
+	private static List<Menu> allMenuCache;
+	@JsonBackReference
+	public static List<Menu> getAllMenu() {
+		return allMenuCache;
+	}
+
+	public static void setAllMenu(List<Menu> allMenu) {
+		Menu.allMenuCache = allMenu;
+	}
+
 	@JsonBackReference
 	@NotNull
 	public Menu getParent() {
+		List<Menu> menuList = getAllMenu();
+		if(menuList!=null){
+			for (Menu item:menuList) {
+				if(item.parent.getId()==this.getId()) {
+					parent=item;
+					break;
+				}
+			}
+		}
 		return parent;
 	}
 
@@ -58,15 +77,15 @@ public class Menu extends AbstractBaseEntity<Menu> {
 	@Length(min=1, max=2000)
 	public String getParentIds() {
 		if(parentIds==null) {
-            parentIds = "0,";
-        }
+			parentIds = "0,";
+		}
 		return parentIds;
 	}
 
 	public void setParentIds(String parentIds) {
 		this.parentIds = parentIds;
 	}
-	
+
 	@Length(min=1, max=100)
 	public String getName() {
 		return name;
@@ -93,7 +112,7 @@ public class Menu extends AbstractBaseEntity<Menu> {
 	public void setTarget(String target) {
 		this.target = target;
 	}
-	
+
 	@Length(min=0, max=100)
 	public String getIcon() {
 		return icon;
@@ -102,16 +121,16 @@ public class Menu extends AbstractBaseEntity<Menu> {
 	public void setIcon(String icon) {
 		this.icon = icon;
 	}
-	
+
 	@NotNull
 	public Integer getSort() {
 		return sort;
 	}
-	
+
 	public void setSort(Integer sort) {
 		this.sort = sort;
 	}
-	
+
 	@Length(min=1, max=1)
 	public String getIsShow() {
 		return isShow;
@@ -136,12 +155,13 @@ public class Menu extends AbstractBaseEntity<Menu> {
 
 	@JsonIgnore
 	public boolean hasChildren(){
+		children=this.getChildren();
 		if(children == null || children.size() == 0){
 			return false;
 		}
 		if(children.toString().contains("查看")) {
-            return false;
-        }
+			return false;
+		}
 		for(Menu child:children){
 			if("1".equals(child.getIsShow())){
 				return true;
@@ -154,12 +174,12 @@ public class Menu extends AbstractBaseEntity<Menu> {
 		List<Menu> menuList = UserUtils.getMenuList();
 		for(Menu menu:menuList){
 			if(menu.getId().equals(this.getId())) {
-                return true;
-            }
+				return true;
+			}
 		}
 		return false;
 	}
-	
+
 	@JsonIgnore
 	public static void sortList(List<Menu> list, List<Menu> sourcelist, String parentId, boolean cascade){
 		for (int i=0; i<sourcelist.size(); i++){
@@ -186,7 +206,7 @@ public class Menu extends AbstractBaseEntity<Menu> {
 	public static String getRootId(){
 		return "1";
 	}
-	
+
 	public String getUserId() {
 		return userId;
 	}
@@ -205,6 +225,16 @@ public class Menu extends AbstractBaseEntity<Menu> {
 	}
 
 	public List<Menu> getChildren() {
+		this.children=new ArrayList<Menu>();
+		List<Menu> menuList = getAllMenu();
+		if(menuList!=null) {
+			for (Menu item : menuList) {
+				if(item.parent==null){continue;}
+				if (this.getId().equals(item.parent.getId())) {
+					this.children.add(item);
+				}
+			}
+		}
 		return children;
 	}
 }

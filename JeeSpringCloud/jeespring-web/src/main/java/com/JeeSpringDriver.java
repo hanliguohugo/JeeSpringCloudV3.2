@@ -35,7 +35,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ComponentScan(basePackages = {"com","com.jeespring", "com.company","cn.xxx"})
 @MapperScan(basePackages={"com.jeespring.modules.**.dao","com.company.project.modules.*.dao","cn.xxx.xxx.modules.*.dao"})
 @EnableScheduling
-@EnableAutoConfiguration
 @Configuration
 //部署开发在线文档：https://gitee.com/JeeHuangBingGui/jeeSpringCloud/wikis
 //部署开发异常处理在线文档：https://gitee.com/JeeHuangBingGui/jeeSpringCloud/wikis

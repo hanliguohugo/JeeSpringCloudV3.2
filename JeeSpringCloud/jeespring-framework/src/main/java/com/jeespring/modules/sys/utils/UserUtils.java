@@ -52,7 +52,7 @@ public class UserUtils {
 	public static final String CACHE_AREA_LIST = "areaList";
 	public static final String CACHE_OFFICE_LIST = "officeList";
 	public static final String CACHE_OFFICE_ALL_LIST = "officeAllList";
-	
+
 	/**
 	 * 根据ID获取用户
 	 * @param id
@@ -71,7 +71,7 @@ public class UserUtils {
 		}
 		return user;
 	}
-	
+
 	/**
 	 * 根据登录名获取用户
 	 * @param loginName
@@ -90,7 +90,7 @@ public class UserUtils {
 		}
 		return user;
 	}
-	
+
 	/**
 	 * 清除当前用户缓存
 	 */
@@ -102,7 +102,7 @@ public class UserUtils {
 		removeCache(CACHE_OFFICE_ALL_LIST);
 		UserUtils.clearCache(getUser());
 	}
-	
+
 	/**
 	 * 清除指定用户缓存
 	 * @param user
@@ -115,7 +115,7 @@ public class UserUtils {
 			CacheUtils.remove(USER_CACHE, USER_CACHE_LIST_BY_OFFICE_ID_ + user.getOffice().getId());
 		}
 	}
-	
+
 	/**
 	 * 获取当前用户
 	 * @return 取不到返回 new User()
@@ -153,7 +153,7 @@ public class UserUtils {
 		}
 		return roleList;
 	}
-	
+
 	/**
 	 * 获取当前用户授权菜单
 	 * @return
@@ -174,12 +174,13 @@ public class UserUtils {
 		}
 		return menuList;
 	}
-	
+
 	/**
 	 * 获取当前用户授权菜单
 	 * @return
 	 */
 	public static Menu getTopMenu(){
+		Menu.setAllMenu(UserUtils.getMenuList());
 		@SuppressWarnings("unchecked")
 		Menu topMenu =  menuDao.findUniqueByProperty("parent_id", "'0'");
 		return topMenu;
@@ -197,7 +198,7 @@ public class UserUtils {
 		}
 		return areaList;
 	}
-	
+
 	/**
 	 * 获取当前用户有权限访问的部门
 	 * @return
@@ -231,14 +232,14 @@ public class UserUtils {
 		}
 		return officeList;
 	}
-	
+
 	/**
 	 * 获取授权主要对象
 	 */
 	public static Subject getSubject(){
 		return SecurityUtils.getSubject();
 	}
-	
+
 	/**
 	 * 获取当前登录者对象
 	 */
@@ -251,13 +252,13 @@ public class UserUtils {
 			}
 //			subject.logout();
 		}catch (UnavailableSecurityManagerException e) {
-			
+
 		}catch (InvalidSessionException e){
-			
+
 		}
 		return null;
 	}
-	
+
 	public static Session getSession(){
 		try{
 			Subject subject = SecurityUtils.getSubject();
@@ -270,17 +271,17 @@ public class UserUtils {
 			}
 //			subject.logout();
 		}catch (InvalidSessionException e){
-			
+
 		}
 		return null;
 	}
-	
+
 	// ============== User Cache ==============
-	
+
 	public static Object getCache(String key) {
 		return getCache(key, null);
 	}
-	
+
 	public static Object getCache(String key, Object defaultValue) {
 //		Object obj = getCacheMap().get(key);
 		Object obj = getSession().getAttribute(key);
@@ -296,26 +297,26 @@ public class UserUtils {
 //		getCacheMap().remove(key);
 		getSession().removeAttribute(key);
 	}
-	
+
 	public static String getTime(Date date){
 		StringBuffer time = new StringBuffer();
-        Date date2 = new Date();
-        long temp = date2.getTime() - date.getTime();    
-        long days = temp / 1000 / 3600/24;                //相差小时数
-        if(days>0){
-        	time.append(days+"天");
-        }
-        long temp1 = temp % (1000 * 3600*24);
-        long hours = temp1 / 1000 / 3600;                //相差小时数
-        if(days>0 || hours>0){
-        	time.append(hours+"小时");
-        }
-        long temp2 = temp1 % (1000 * 3600);
-        long mins = temp2 / 1000 / 60;                    //相差分钟数
-        time.append(mins + "分钟");
-        return  time.toString();
+		Date date2 = new Date();
+		long temp = date2.getTime() - date.getTime();
+		long days = temp / 1000 / 3600/24;                //相差小时数
+		if(days>0){
+			time.append(days+"天");
+		}
+		long temp1 = temp % (1000 * 3600*24);
+		long hours = temp1 / 1000 / 3600;                //相差小时数
+		if(days>0 || hours>0){
+			time.append(hours+"小时");
+		}
+		long temp2 = temp1 % (1000 * 3600);
+		long mins = temp2 / 1000 / 60;                    //相差分钟数
+		time.append(mins + "分钟");
+		return  time.toString();
 	}
-//	public static Map<String, Object> getCacheMap(){
+	//	public static Map<String, Object> getCacheMap(){
 //		Principal principal = getPrincipal();
 //		if(principal!=null){
 //			return principal.getCacheMap();
@@ -323,15 +324,15 @@ public class UserUtils {
 //		return new HashMap<String, Object>();
 //	}
 //发送注册码
-public static String sendRandomCode(String uid, String pwd, String tel, String randomCode) throws IOException {
-	//发送内容
-	String content = "您的验证码是："+randomCode+"，有效期30分钟，请在有效期内使用。";
-	try{
-		return SMSUtils.send(uid, pwd, tel, content);
-	}catch (Exception e){
-		return "";
+	public static String sendRandomCode(String uid, String pwd, String tel, String randomCode) throws IOException {
+		//发送内容
+		String content = "您的验证码是："+randomCode+"，有效期30分钟，请在有效期内使用。";
+		try{
+			return SMSUtils.send(uid, pwd, tel, content);
+		}catch (Exception e){
+			return "";
+		}
 	}
-}
 
 	//注册用户重置密码
 	public static String sendPass(String uid, String pwd, String tel, String password) throws IOException {

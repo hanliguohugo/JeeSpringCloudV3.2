@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jeespring.modules.sys.dao.MenuDao">
-	
-     <resultMap id="menuResult" type="Menu">
+
+	<resultMap id="menuResult" type="Menu">
 		<id property="id" column="id" />
 		<result property="parentIds" column="parentIds" />
 		<result property="name" column="name" />
@@ -12,13 +12,13 @@
 		<result property="sort" column="sort" />
 		<result property="isShow" column="isShow" />
 		<result property="permission" column="permission" />
-		<!-- 查询父模块-->  
-        <association property="parent" column="parent_id" select="getParent" />   
-          
-        <!-- 查询子模块 -->  
-        <collection property="children" column="id" select="getChildren" />  
+		<!-- 查询父模块-->
+		<!--association property="parent" column="parent_id" select="getParent" /-->
+
+		<!-- 查询子模块 -->
+		<!--collection property="children" column="id" select="getChildren" /-->
 	</resultMap>
-    
+
 	<sql id="menuColumns">
 		a.id,
 		a.parent_id AS "parent.id",
@@ -38,14 +38,14 @@
 		a.del_flag,
 		p.name AS "parent.name"
 	</sql>
-	
+
 	<sql id="menuJoins">
 		LEFT JOIN sys_menu p ON p.id = a.parent_id
     </sql>
-	
+
 	<select id="get"  resultMap="menuResult">
 		SELECT
-			<include refid="menuColumns"/>
+		<include refid="menuColumns"/>
 		FROM sys_menu a
 		<include refid="menuJoins"/>
 		WHERE a.id = #{id}
@@ -53,22 +53,22 @@
 	<select id="findUniqueByProperty"  resultMap="menuResult" statementType="STATEMENT">
 		select * from sys_menu where ${propertyName} = ${value}
 	</select>
-	
+
 	<select id="getChildren" parameterType="String" resultMap="menuResult">  
         select *,is_show as "isShow" from sys_menu where parent_id = #{id} ORDER BY sort
-    </select>  
-    <select id="getParent" parameterType="String" resultMap="menuResult">  
+    </select>
+	<select id="getParent" parameterType="String" resultMap="menuResult">
         select * from sys_menu where id = #{id}  
-    </select>  
+    </select>
 	<select id="findAllList" resultMap="menuResult">
 		SELECT
-			<include refid="menuColumns"/>
+		<include refid="menuColumns"/>
 		FROM sys_menu a
 		<include refid="menuJoins"/>
 		WHERE a.del_flag = #{DEL_FLAG_NORMAL}
 		ORDER BY a.sort
 	</select>
-	
+
 	<select id="findByParentIdsLike"  resultMap="menuResult">
 		SELECT
 			a.id,
@@ -78,20 +78,20 @@
 		WHERE a.del_flag = #{DEL_FLAG_NORMAL} AND a.parent_ids LIKE #{parentIds}
 		ORDER BY a.sort
 	</select>
-	
+
 	<select id="findByUserId"  resultMap="menuResult">
 		SELECT DISTINCT
-			<include refid="menuColumns"/>
+		<include refid="menuColumns"/>
 		FROM sys_menu a
 		LEFT JOIN sys_menu p ON p.id = a.parent_id
 		JOIN sys_role_menu rm ON rm.menu_id = a.id
 		JOIN sys_role r ON r.id = rm.role_id AND r.useable='1'
 		JOIN sys_user_role ur ON ur.role_id = r.id
 		JOIN sys_user u ON u.id = ur.user_id AND u.id = #{userId}
-		WHERE a.del_flag = #{DEL_FLAG_NORMAL} AND r.del_flag = #{DEL_FLAG_NORMAL} AND u.del_flag = #{DEL_FLAG_NORMAL} 
+		WHERE a.del_flag = #{DEL_FLAG_NORMAL} AND r.del_flag = #{DEL_FLAG_NORMAL} AND u.del_flag = #{DEL_FLAG_NORMAL}
 		ORDER BY a.sort
 	</select>
-	
+
 	<insert id="insert">
 		INSERT INTO sys_menu(
 			id, 
@@ -129,7 +129,7 @@
 			#{delFlag}
 		)
 	</insert>
-	
+
 	<update id="update">
 		UPDATE sys_menu SET 
 			parent_id = #{parent.id}, 
@@ -146,33 +146,33 @@
 			remarks = #{remarks}
 		WHERE id = #{id}
 	</update>
-	
+
 	<update id="updateParentIds">
 		UPDATE sys_menu SET 
 			parent_id = #{parent.id}, 
 			parent_ids = #{parentIds}
 		WHERE id = #{id}
 	</update>
-	
+
 	<update id="updateSort">
 		UPDATE sys_menu SET 
 			sort = #{sort}
 		WHERE id = #{id}
 	</update>
-	
+
 	<update id="delete">
-		DELETE FROM sys_menu 
-		WHERE id = #{id} OR parent_ids LIKE 
-					<if test="dbName == 'oracle'">'%,'||#{id}||',%'</if>
-					<if test="dbName == 'mysql'">CONCAT('%,', #{id}, ',%')</if>
+		DELETE FROM sys_menu
+		WHERE id = #{id} OR parent_ids LIKE
+		<if test="dbName == 'oracle'">'%,'||#{id}||',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{id}, ',%')</if>
 	</update>
-	
+
 	<update id="deleteByLogic">
-		UPDATE sys_menu SET 
-			del_flag = #{DEL_FLAG_DELETE}
-		WHERE id = #{id} OR parent_ids LIKE 
-					<if test="dbName == 'oracle'">'%,'||#{id}||',%'</if>
-					<if test="dbName == 'mysql'">CONCAT('%,', #{id}, ',%')</if>
+		UPDATE sys_menu SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id} OR parent_ids LIKE
+		<if test="dbName == 'oracle'">'%,'||#{id}||',%'</if>
+		<if test="dbName == 'mysql'">CONCAT('%,', #{id}, ',%')</if>
 	</update>
-	
+
 </mapper>
